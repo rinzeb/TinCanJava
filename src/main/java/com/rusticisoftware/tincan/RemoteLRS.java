@@ -60,14 +60,13 @@ public class RemoteLRS implements LRS {
 
     private static Boolean _ourClient = false;
     private static HttpClient _httpClient;
-    private static HttpClient httpClient() throws Exception {
+    private static HttpClient httpClient(Boolean skipSslErrors) throws Exception {
         if (_httpClient == null ) {
-            _httpClient = new HttpClient(new SslContextFactory());
+            _httpClient = new HttpClient(new SslContextFactory(skipSslErrors));
             _httpClient.setConnectTimeout(TIMEOUT_CONNECT);
             _httpClient.setFollowRedirects(false);
             _httpClient.setCookieStore(new HttpCookieStore.Empty());
             _httpClient.start();
-
             _ourClient = true;
         }
 
@@ -112,6 +111,7 @@ public class RemoteLRS implements LRS {
     private String username;
     private String password;
     private String auth;
+    private Boolean skipSSL;
     private HashMap extended;
     private Boolean prettyJSON = false;
 
@@ -147,6 +147,17 @@ public class RemoteLRS implements LRS {
             this.setAuth(this.calculateBasicAuth());
         }
     }
+    
+    public void setSkipSSL(Boolean b) {
+        this.skipSSL = b;
+        if (_httpClient != null) {
+        	_httpClient.destroy();
+        }
+    }
+
+    public Boolean getSkipSSL() {
+    	return this.skipSSL;
+    }
 
     /**
      * Alternate Getter method for readability of code
@@ -160,21 +171,22 @@ public class RemoteLRS implements LRS {
             (this.getUsername() + ":" + this.getPassword()).getBytes()
         );
     }
+    
+    private HTTPResponse makeSyncRequest(HTTPRequest req) { 
+	    String url;
+	    if (req.getResource().toLowerCase().startsWith("http")) {
+	        url = req.getResource();
+	    } else {
+	        url = this.endpoint.toString();
+	        if (! url.endsWith("/") && ! req.getResource().startsWith("/")) {
+	            url += "/";
+	        }
+	        url += req.getResource();
+	    }
+	    return makeSyncRequestForUrl(req, url);
+	}
 
-    private HTTPResponse makeSyncRequest(HTTPRequest req) {
-        String url;
-
-        if (req.getResource().toLowerCase().startsWith("http")) {
-            url = req.getResource();
-        }
-        else {
-            url = this.endpoint.toString();
-            if (! url.endsWith("/") && ! req.getResource().startsWith("/")) {
-                url += "/";
-            }
-            url += req.getResource();
-        }
-
+    private HTTPResponse makeSyncRequestForUrl(HTTPRequest req, String url) {
         if (req.getQueryParams() != null) {
             String qs = "";
             Iterator it = req.getQueryParams().entrySet().iterator();
@@ -195,7 +207,7 @@ public class RemoteLRS implements LRS {
         final HTTPResponse response = new HTTPResponse();
 
         try {
-            final Request webReq = httpClient().
+            final Request webReq = httpClient(this.skipSSL).
                 newRequest(url).
                 method(HttpMethod.fromString(req.getMethod())).
                 header("X-Experience-API-Version", this.version.toString());
@@ -513,7 +525,6 @@ public class RemoteLRS implements LRS {
     public StatementLRSResponse saveStatement(Statement statement) {
         StatementLRSResponse lrsResponse = new StatementLRSResponse();
         lrsResponse.setRequest(new HTTPRequest());
-
         lrsResponse.getRequest().setResource("statements");
         lrsResponse.getRequest().setContentType("application/json");
 
@@ -1000,4 +1011,24 @@ public class RemoteLRS implements LRS {
 
         return deleteDocument("agents/profile", queryParams);
     }
+
+	public LRSResponse clearDatabase(String url) {
+		HTTPRequest request = new HTTPRequest();
+        request.setMethod(HttpMethod.POST.asString());
+        request.setQueryParams(null);
+        request.setContentType("application/json");
+        request.setContent("{\"filter\": {\"statement.timestamp\": { \"$gt\": 0 }}}".getBytes());
+
+        HTTPResponse response = makeSyncRequestForUrl(request, url);
+        LRSResponse lrsResponse = new LRSResponse(request, response);
+
+        if (response.getStatus() == 204 || response.getStatus() == 200) {
+            lrsResponse.setSuccess(true);
+        }
+        else {
+            lrsResponse.setSuccess(false);
+        }
+
+        return lrsResponse;
+	}
 }
