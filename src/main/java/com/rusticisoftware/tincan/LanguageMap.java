@@ -79,6 +79,10 @@ public class LanguageMap extends JSONBase implements Iterable<Map.Entry<String, 
 
         return node;
     }
+    
+    public void putAll(Map<String, String> vals) {
+        this._map.putAll(vals);
+    }
 
     public String put(String key, String val) {
         return this._map.put(key, val);

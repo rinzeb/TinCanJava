@@ -43,9 +43,13 @@ public class Verb extends JSONBase {
 
     public Verb(URI id, String display) {
         this(id);
-
         LanguageMap displayMap = new LanguageMap();
         displayMap.put("und", display);
+        this.setDisplay(displayMap);
+    }
+    
+    public Verb(URI id, LanguageMap displayMap) {
+        this(id);
         this.setDisplay(displayMap);
     }
 
