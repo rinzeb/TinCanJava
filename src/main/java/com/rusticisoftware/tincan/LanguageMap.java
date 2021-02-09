@@ -15,18 +15,18 @@
 */
 package com.rusticisoftware.tincan;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.NoArgsConstructor;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.List;
-import java.util.ArrayList;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.rusticisoftware.tincan.json.JSONBase;
 import com.rusticisoftware.tincan.json.Mapper;
+
+import lombok.NoArgsConstructor;
 
 /**
  * Language map
@@ -59,6 +59,13 @@ public class LanguageMap extends JSONBase implements Iterable<Map.Entry<String, 
             );
         }
     }
+    
+    public static LanguageMap fromMap(Map<String, String> map) {
+    	LanguageMap lm = new LanguageMap();
+    	lm.putAll(map);
+    	return lm;
+    }
+    
     public LanguageMap(JsonNode jsonNode) {
         this();
 

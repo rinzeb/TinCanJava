@@ -48,8 +48,8 @@ public class Verb extends JSONBase {
         this.setDisplay(displayMap);
     }
     
-    public Verb(URI id, LanguageMap displayMap) {
-        this(id);
+    public Verb(String id, LanguageMap displayMap) throws URISyntaxException {
+        this(new URI(id));
         this.setDisplay(displayMap);
     }
 
@@ -94,5 +94,9 @@ public class Verb extends JSONBase {
 
     public void setId(String id) throws URISyntaxException {
         this.setId(new URI(id));
+    }
+    
+    public String getIdString() {
+        return this.id.toString();
     }
 }

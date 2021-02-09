@@ -48,6 +48,11 @@ public class Activity extends JSONBase implements QueryableStatementTarget {
     public Activity(String id) throws URISyntaxException {
         this(new URI(id));
     }
+    
+	public Activity(String id, ActivityDefinition definition) throws URISyntaxException {
+		this(new URI(id));
+		this.setDefinition(definition);
+	}
 
     public Activity(JsonNode jsonNode) throws URISyntaxException {
         this();
@@ -87,6 +92,10 @@ public class Activity extends JSONBase implements QueryableStatementTarget {
 
         return node;
     }
+    
+    public String getIdString() {
+        return this.id.toString();
+    }
 
     public void setId(URI id) {
         this.id = id;
@@ -95,4 +104,5 @@ public class Activity extends JSONBase implements QueryableStatementTarget {
     public void setId(String id) throws URISyntaxException {
         this.setId(new URI(id));
     }
+
 }

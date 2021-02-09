@@ -148,6 +148,13 @@ public class ActivityDefinition extends JSONBase {
         descriptionMap.put("und", description);
         this.setDescription(descriptionMap);
     }
+    
+    public ActivityDefinition(String type, LanguageMap nameMap, LanguageMap descriptionMap) throws URISyntaxException {
+        this();
+        this.setType(type);
+        this.setName(nameMap);
+        this.setDescription(descriptionMap);
+    }
 
     @Override
     public ObjectNode toJSONNode(TCAPIVersion version) {
@@ -242,6 +249,10 @@ public class ActivityDefinition extends JSONBase {
             }
         }
         return node;
+    }
+    
+    public String getTypeString() {
+        return this.type.toString();
     }
 
     public void setType(URI type) {
