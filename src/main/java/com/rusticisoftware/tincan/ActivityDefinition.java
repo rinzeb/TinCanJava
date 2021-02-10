@@ -20,11 +20,6 @@ import static com.rusticisoftware.tincan.InteractionType.getByString;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Iterator;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,6 +27,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.rusticisoftware.tincan.json.JSONBase;
 import com.rusticisoftware.tincan.json.Mapper;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 /**
  * Activity Definition model class
@@ -149,7 +148,7 @@ public class ActivityDefinition extends JSONBase {
         this.setDescription(descriptionMap);
     }
     
-    public ActivityDefinition(String type, LanguageMap nameMap, LanguageMap descriptionMap) throws URISyntaxException {
+    public ActivityDefinition(URI type, LanguageMap nameMap, LanguageMap descriptionMap) throws URISyntaxException {
         this();
         this.setType(type);
         this.setName(nameMap);
@@ -253,6 +252,18 @@ public class ActivityDefinition extends JSONBase {
     
     public String getTypeString() {
         return this.type.toString();
+    }
+    
+    public String getNameString() {
+    	if (name.containsKey("und")) {
+    		return name.get("und"); 
+    	} else if (name.containsKey("en-US")) {
+    		return name.get("en-US"); 
+    	} else if (name.containsKey("nl-NL")) {
+    		return name.get("nl-NL"); 
+    	} else {
+    		return "?";
+    	}
     }
 
     public void setType(URI type) {
